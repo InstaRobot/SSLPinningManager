@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SSLPinningManager",
     platforms: [
-        .iOS(.v15), .macOS(.v12)
+        .iOS(.v14), .macOS(.v11), .tvOS(.v14)
     ],
     products: [
         .library(

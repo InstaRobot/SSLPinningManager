@@ -37,15 +37,20 @@ public struct SSLPinningManager {
     private func validateAndGetTrust(
         with challenge: URLAuthenticationChallenge
     ) throws -> SecTrust {
-        guard
-            let trust = challenge.protectionSpace.serverTrust,
-            let trustCertificateChain = SecTrustCopyCertificateChain(trust) as? [SecCertificate],
-            !trustCertificateChain.isEmpty
-        else {
+        guard let trust = challenge.protectionSpace.serverTrust else {
             throw PinningError.noCertificatesFromServer
         }
-
-        for serverCertificate in trustCertificateChain {
+        
+        let certificateCount = SecTrustGetCertificateCount(trust)
+        guard certificateCount > 0 else {
+            throw PinningError.noCertificatesFromServer
+        }
+        
+        for i in 0..<certificateCount {
+            guard let serverCertificate = SecTrustGetCertificateAtIndex(trust, i) else {
+                continue
+            }
+            
             let publicKey = try getPublicKey(for: serverCertificate)
             let publicKeyHash = try getKeyHash(of: publicKey)
 
@@ -90,4 +95,3 @@ public struct SSLPinningManager {
         return publicKeyHashData.base64EncodedString()
     }
 }
-
